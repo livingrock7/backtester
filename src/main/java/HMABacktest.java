@@ -1,10 +1,7 @@
 import org.ta4j.core.*;
-import org.ta4j.core.analysis.criteria.ProfitLossCriterion;
 import org.ta4j.core.analysis.criteria.ProfitLossPercentageCriterion;
-import org.ta4j.core.analysis.criteria.TotalProfitCriterion;
 import org.ta4j.core.indicators.*;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
-import org.ta4j.core.indicators.helpers.OpenPriceIndicator;
 import org.ta4j.core.num.Num;
 import org.ta4j.core.num.PrecisionNum;
 import org.ta4j.core.trading.rules.*;
@@ -20,15 +17,19 @@ public class HMABacktest {
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(series);
         AveragePriceIndicator averagePriceIndicator = new AveragePriceIndicator(series);
-        Strategy strategy = hma(closePriceIndicator, averagePriceIndicator);
+        Strategy buyStrategy = hmaBuy(closePriceIndicator, averagePriceIndicator);
+        Strategy sellStrategy = hmaSell(closePriceIndicator, averagePriceIndicator);
 
         BarSeriesManager seriesManager = new BarSeriesManager(series);
-        TradingRecord tradingRecord3DaySma = seriesManager.run(strategy, Order.OrderType.BUY,
+        TradingRecord hmaBuyTradingRecord = seriesManager.run(buyStrategy, Order.OrderType.BUY,
                 PrecisionNum.valueOf(0.01));
 
-        System.out.println("Number Of trades : " + tradingRecord3DaySma.getTrades().size());
+        TradingRecord hmaSellTradingRecord = seriesManager.run(sellStrategy, Order.OrderType.SELL,
+                PrecisionNum.valueOf(0.01));
 
-        for (Trade trade : tradingRecord3DaySma.getTrades()) {
+        System.out.println("Number Of trades : " + hmaBuyTradingRecord.getTrades().size());
+
+        for (Trade trade : hmaBuyTradingRecord.getTrades()) {
             System.out.println("Entry Bar :: " + series.getBar(trade.getEntry().getIndex()));
             System.out.println("Entry Order :: " + trade.getEntry());
             System.out.println("Exit Bar :: " + series.getBar(trade.getExit().getIndex()));
@@ -38,23 +39,42 @@ public class HMABacktest {
 
 
         PrecisionNum profit = PrecisionNum.valueOf(0);
-
-        for (Trade trade : tradingRecord3DaySma.getTrades()) {
+        for (Trade trade : hmaBuyTradingRecord.getTrades()) {
             profit = (PrecisionNum) profit.plus(trade.getProfit());
         }
+        System.out.println("Buy Profit : " + profit);
 
-        System.out.println(profit);
+        profit = PrecisionNum.valueOf(0);
+        for (Trade trade : hmaSellTradingRecord.getTrades()) {
+            profit = (PrecisionNum) profit.plus(trade.getProfit());
+        }
+        System.out.println("Sell Profit : " + profit);
 
-        AnalysisCriterion profitCriterion = new ProfitLossPercentageCriterion();
-        Num calculate1428EmaProfit = profitCriterion.calculate(series, tradingRecord3DaySma);
-        System.out.println(calculate1428EmaProfit);
+        AnalysisCriterion buyCriterion = new ProfitLossPercentageCriterion();
+        Num buyStartegy = buyCriterion.calculate(series, hmaBuyTradingRecord);
+        System.out.println("Buy Strategy : "+buyStartegy);
+
+        AnalysisCriterion sellCriterion = new ProfitLossPercentageCriterion();
+        Num sellStartegy = sellCriterion.calculate(series, hmaSellTradingRecord);
+        System.out.println("Sell Strategy : "+sellStartegy);
+
+
     }
 
-    private static Strategy hma(ClosePriceIndicator priceIndicator, AveragePriceIndicator averagePriceIndicator) {
+    private static Strategy hmaBuy(ClosePriceIndicator priceIndicator, AveragePriceIndicator averagePriceIndicator) {
         HMAIndicator hmaIndicator = new HMAIndicator(priceIndicator, 100);
-        Rule entryRule = new CrossedUpIndicatorRule(averagePriceIndicator, hmaIndicator);
-        Rule exitRule = new CrossedDownIndicatorRule(hmaIndicator, priceIndicator)
-                .or(new StopGainRule(priceIndicator, PrecisionNum.valueOf(1)))
+        Rule entryRule = new CrossedUpIndicatorRule(priceIndicator, hmaIndicator);
+        Rule exitRule = new CrossedDownIndicatorRule(priceIndicator, hmaIndicator)
+                .or(new StopGainRule(priceIndicator, PrecisionNum.valueOf(5)))
+                .or(new StopLossRule(priceIndicator, PrecisionNum.valueOf(0.5)));
+        return new BaseStrategy(entryRule, exitRule);
+    }
+
+    private static Strategy hmaSell(ClosePriceIndicator priceIndicator, AveragePriceIndicator averagePriceIndicator) {
+        HMAIndicator hmaIndicator = new HMAIndicator(priceIndicator, 100);
+        Rule entryRule = new CrossedDownIndicatorRule(priceIndicator, hmaIndicator);
+        Rule exitRule = new CrossedUpIndicatorRule(priceIndicator, hmaIndicator)
+                .or(new StopGainRule(priceIndicator, PrecisionNum.valueOf(5)))
                 .or(new StopLossRule(priceIndicator, PrecisionNum.valueOf(0.5)));
         return new BaseStrategy(entryRule, exitRule);
     }
