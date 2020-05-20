@@ -19,6 +19,8 @@ public class HMABacktest {
         AveragePriceIndicator averagePriceIndicator = new AveragePriceIndicator(series);
         Strategy buyStrategy = hmaBuy(closePriceIndicator, averagePriceIndicator);
         Strategy sellStrategy = hmaSell(closePriceIndicator, averagePriceIndicator);
+        Strategy rsiBuyStrategy = rsiBuy(closePriceIndicator, averagePriceIndicator);
+
 
         BarSeriesManager seriesManager = new BarSeriesManager(series);
         TradingRecord hmaBuyTradingRecord = seriesManager.run(buyStrategy, Order.OrderType.BUY,
@@ -26,6 +28,9 @@ public class HMABacktest {
 
         TradingRecord hmaSellTradingRecord = seriesManager.run(sellStrategy, Order.OrderType.SELL,
                 PrecisionNum.valueOf(0.01));
+
+        TradingRecord rsiBuyTradingRecord =seriesManager.run(rsiBuyStrategy, Order.OrderType.BUY,
+                PrecisionNum.valueOf(0.05));
 
         System.out.println("Number Of trades : " + hmaBuyTradingRecord.getTrades().size());
 
@@ -42,7 +47,25 @@ public class HMABacktest {
         for (Trade trade : hmaBuyTradingRecord.getTrades()) {
             profit = (PrecisionNum) profit.plus(trade.getProfit());
         }
-        System.out.println("Buy Profit : " + profit);
+        System.out.println("Buy Profit hma: " + profit);
+
+        System.out.println("Number Of trades : " + rsiBuyTradingRecord.getTrades().size());
+
+        for (Trade trade : rsiBuyTradingRecord.getTrades()) {
+            System.out.println("Entry Bar :: " + series.getBar(trade.getEntry().getIndex()));
+            System.out.println("Entry Order :: " + trade.getEntry());
+            System.out.println("Exit Bar :: " + series.getBar(trade.getExit().getIndex()));
+            System.out.println("Exit Order :: " + trade.getExit());
+            System.out.println("----------------------\n");
+        }
+
+
+        PrecisionNum extraProfit = PrecisionNum.valueOf(0);
+        for (Trade trade : rsiBuyTradingRecord.getTrades()) {
+            extraProfit = (PrecisionNum) profit.plus(trade.getProfit());
+        }
+        System.out.println("Buy Profit rsi: " + extraProfit);
+
 
         profit = PrecisionNum.valueOf(0);
         for (Trade trade : hmaSellTradingRecord.getTrades()) {
@@ -52,6 +75,7 @@ public class HMABacktest {
 
         AnalysisCriterion buyCriterion = new ProfitLossPercentageCriterion();
         Num buyStartegy = buyCriterion.calculate(series, hmaBuyTradingRecord);
+        //Num buyStartegy = buyCriterion.calculate(series, rsiBuyTradingRecord);
         System.out.println("Buy Strategy : "+buyStartegy);
 
         AnalysisCriterion sellCriterion = new ProfitLossPercentageCriterion();
@@ -76,6 +100,13 @@ public class HMABacktest {
         Rule exitRule = new CrossedUpIndicatorRule(priceIndicator, hmaIndicator)
                 .or(new StopGainRule(priceIndicator, PrecisionNum.valueOf(5)))
                 .or(new StopLossRule(priceIndicator, PrecisionNum.valueOf(0.5)));
+        return new BaseStrategy(entryRule, exitRule);
+    }
+
+    private static Strategy rsiBuy(ClosePriceIndicator priceIndicator, AveragePriceIndicator averagePriceIndicator) {
+        RSIIndicator rsiIndicator = new RSIIndicator(priceIndicator, 14);
+        Rule entryRule = new IsEqualRule(rsiIndicator,30);
+        Rule exitRule = new IsEqualRule(rsiIndicator,57);
         return new BaseStrategy(entryRule, exitRule);
     }
 
