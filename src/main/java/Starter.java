@@ -1,4 +1,3 @@
-//import com.sun.xml.internal.ws.developer.UsesJAXBContext;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.BarSeriesManager;
 import org.ta4j.core.BaseBarSeriesBuilder;

@@ -35,10 +35,9 @@ public class HMABacktest {
         System.out.println("Number Of trades : " + hmaBuyTradingRecord.getTrades().size());
 
         for (Trade trade : hmaBuyTradingRecord.getTrades()) {
-            System.out.println("Entry Bar :: " + series.getBar(trade.getEntry().getIndex()));
             System.out.println("Entry Order :: " + trade.getEntry());
-            System.out.println("Exit Bar :: " + series.getBar(trade.getExit().getIndex()));
             System.out.println("Exit Order :: " + trade.getExit());
+            System.out.println("PNL :: "+ trade.getProfit());
             System.out.println("----------------------\n");
         }
 
