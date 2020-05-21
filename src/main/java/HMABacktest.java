@@ -12,7 +12,7 @@ public class HMABacktest {
     public static void main(String[] args) throws IOException {
 
         BarDataLoader dataLoader = new BarDataLoader();
-        BarSeries series = dataLoader.createBarSeriesBitMex("Bitmex_1_19_5m.csv", Integer.MAX_VALUE);
+        BarSeries series = dataLoader.createBarSeriesBitMex("bitmex_XBTUSD_JAN_1_MAY_21.csv", Integer.MAX_VALUE);
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(series);
         AveragePriceIndicator averagePriceIndicator = new AveragePriceIndicator(series);

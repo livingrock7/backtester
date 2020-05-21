@@ -25,7 +25,7 @@ public class BitmexDataDownloader {
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date fromDate = simpleDateFormat.parse("01/05/2020");
-            Date toDate = simpleDateFormat.parse("20/05/2020");
+            Date toDate = simpleDateFormat.parse("21/05/2020");
             String symbol = "XBTUSD";
 
             Path source = Paths.get(System.getProperty("user.home") + "/Downloads/bitmex_" + symbol + "_" + Month.of(fromDate.getMonth() + 1) + "_" + fromDate.getDate() + "_" +
@@ -45,7 +45,8 @@ public class BitmexDataDownloader {
     }
 
     private static StringBuilder getBitmexData(Date fromDate, Date toDate, String symbol) throws IOException {
-        URL url = new URL("https://www.bitmex.com/api/udf/history?symbol=" + symbol + "&resolution=5&from=" + (fromDate.getTime() / 1000) + "&to=" + (toDate.getTime() / 1000));
+        URL url = new URL("https://www.bitmex.com/api/udf/history?symbol=" + symbol + "&resolution=5&from=" +
+                ((fromDate.getTime() / 1000)+300) + "&to=" + ((toDate.getTime() / 1000) - 300));
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
@@ -87,7 +88,7 @@ public class BitmexDataDownloader {
         int len = time.size();
         List<String[]> data = new ArrayList<String[]>();
         for (i = 0; i < len; i++) {
-            data.add(new String[]{time.getString(i), open.getString(i), high.getString(0), low.getString(0), close.getString(0), volume.getString(0)});
+            data.add(new String[]{time.getString(i), open.getString(i), high.getString(i), low.getString(i), close.getString(i), volume.getString(i)});
         }
 
         writer.writeAll(data);
