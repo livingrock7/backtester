@@ -3,6 +3,9 @@ import org.ta4j.core.indicators.EMAIndicator;
 import org.ta4j.core.indicators.HMAIndicator;
 import org.ta4j.core.indicators.MACDIndicator;
 import org.ta4j.core.indicators.RSIIndicator;
+import org.ta4j.core.indicators.bollinger.BollingerBandsLowerIndicator;
+import org.ta4j.core.indicators.bollinger.BollingerBandsMiddleIndicator;
+import org.ta4j.core.indicators.bollinger.BollingerBandsUpperIndicator;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 import org.ta4j.core.num.PrecisionNum;
 import org.ta4j.core.trading.rules.*;
@@ -14,8 +17,8 @@ public class HMABacktest {
     public static void main(String[] args) throws IOException {
 
         BarDataLoader dataLoader = new BarDataLoader();
-        BarSeries series = dataLoader.createBarSeriesBitMex("bitmex_XBTUSD_MAY_20_MAY_21.csv", Integer.MAX_VALUE);
-        //BarSeries series = dataLoader.createBarSeriesBitMex("bitmex_XBTUSD_JAN_1_MAY_21.csv", Integer.MAX_VALUE);
+        //BarSeries series = dataLoader.createBarSeriesBitMex("bitmex_XBTUSD_MAY_20_MAY_21.csv", Integer.MAX_VALUE);
+        BarSeries series = dataLoader.createBarSeriesBitMex("bitmex_XBTUSD_JAN_1_MAY_21.csv", Integer.MAX_VALUE);
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(series);
         AveragePriceIndicator averagePriceIndicator = new AveragePriceIndicator(series);
@@ -28,7 +31,7 @@ public class HMABacktest {
 
         //HMA BUY
         TradingRecord hmaBuyTradingRecord = seriesManager.run(buyStrategy, Order.OrderType.BUY,
-                PrecisionNum.valueOf(0.01));
+                PrecisionNum.valueOf(1));
         PrecisionNum profit = PrecisionNum.valueOf(0);
         for (Trade trade : hmaBuyTradingRecord.getTrades()) {
             profit = (PrecisionNum) profit.plus(trade.getProfit());
@@ -56,7 +59,7 @@ public class HMABacktest {
 
         //MACD BUY
         TradingRecord macdBuyTradingRecord = seriesManager.run(macdBuyStrategy, Order.OrderType.BUY,
-                PrecisionNum.valueOf(0.01));
+                PrecisionNum.valueOf(1));
         extraProfit = PrecisionNum.valueOf(0);
         for (Trade trade : macdBuyTradingRecord.getTrades()) {
             if(trade.getProfit().isLessThan(PrecisionNum.valueOf(0))){
@@ -72,11 +75,24 @@ public class HMABacktest {
     }
 
     private static Strategy hmaBuy(ClosePriceIndicator priceIndicator, AveragePriceIndicator averagePriceIndicator) {
-        HMAIndicator hmaIndicator = new HMAIndicator(priceIndicator, 100);
+        HMAIndicator hmaIndicator = new HMAIndicator(priceIndicator, 20);
+        RSIIndicator rsiIndicator = new RSIIndicator(priceIndicator,14);
+        BollingerBandsMiddleIndicator bbMiddleBand = new BollingerBandsMiddleIndicator(priceIndicator);
+        // not sure
+        EMAIndicator emaIndicator = new EMAIndicator(priceIndicator,20);
+        BollingerBandsUpperIndicator bbUpperBand = new BollingerBandsUpperIndicator(bbMiddleBand,emaIndicator,PrecisionNum.valueOf(2));
+        BollingerBandsLowerIndicator bbLowerBand = new BollingerBandsLowerIndicator(bbMiddleBand,emaIndicator,PrecisionNum.valueOf(2));
+
         Rule entryRule = new CrossedUpIndicatorRule(priceIndicator, hmaIndicator);
-        Rule exitRule = new CrossedDownIndicatorRule(priceIndicator, hmaIndicator)
+        Rule exitRule = new InSlopeRule(priceIndicator,PrecisionNum.valueOf(-5),PrecisionNum.valueOf(2.5))
                 .or(new StopGainRule(priceIndicator, PrecisionNum.valueOf(1)))
                 .or(new StopLossRule(priceIndicator, PrecisionNum.valueOf(0.5)));
+        /*Rule exitRule = new CrossedDownIndicatorRule(priceIndicator, hmaIndicator)
+                .or(new StopGainRule(priceIndicator, PrecisionNum.valueOf(1)))
+                .or(new StopLossRule(priceIndicator, PrecisionNum.valueOf(0.5)));*/
+        /*Rule exitRule = new CrossedUpIndicatorRule(rsiIndicator,PrecisionNum.valueOf(57.02))
+                .or(new StopGainRule(priceIndicator, PrecisionNum.valueOf(1)))
+                .or(new StopLossRule(priceIndicator, PrecisionNum.valueOf(0.5)));*/
         return new BaseStrategy(entryRule, exitRule);
     }
 

@@ -24,7 +24,7 @@ public class BitmexDataDownloader {
         try {
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            Date fromDate = simpleDateFormat.parse("20/05/2020");
+            Date fromDate = simpleDateFormat.parse("01/05/2020");
             Date toDate = simpleDateFormat.parse("21/05/2020");
             String symbol = "XBTUSD";
 
@@ -45,7 +45,7 @@ public class BitmexDataDownloader {
     }
 
     private static StringBuilder getBitmexData(Date fromDate, Date toDate, String symbol) throws IOException {
-        String s = "5";
+        String s = "60";
         URL url = new URL("https://www.bitmex.com/api/udf/history?symbol=" + symbol + "&resolution=" + s + "&from=" +
                 ((fromDate.getTime() / 1000)+300) + "&to=" + ((toDate.getTime() / 1000) - 300));
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
