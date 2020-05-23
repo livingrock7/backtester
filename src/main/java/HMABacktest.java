@@ -14,14 +14,15 @@ public class HMABacktest {
     public static void main(String[] args) throws IOException {
 
         BarDataLoader dataLoader = new BarDataLoader();
-        BarSeries series = dataLoader.createBarSeriesBitMex("bitmex_XBTUSD_JAN_1_MAY_21.csv", Integer.MAX_VALUE);
+        BarSeries series = dataLoader.createBarSeriesBitMex("bitmex_XBTUSD_MAY_20_MAY_21.csv", Integer.MAX_VALUE);
+        //BarSeries series = dataLoader.createBarSeriesBitMex("bitmex_XBTUSD_JAN_1_MAY_21.csv", Integer.MAX_VALUE);
 
         ClosePriceIndicator closePriceIndicator = new ClosePriceIndicator(series);
         AveragePriceIndicator averagePriceIndicator = new AveragePriceIndicator(series);
         Strategy buyStrategy = hmaBuy(closePriceIndicator, averagePriceIndicator);
         Strategy sellStrategy = hmaSell(closePriceIndicator, averagePriceIndicator);
         Strategy rsiBuyStrategy = rsiBuy(closePriceIndicator, averagePriceIndicator);
-        Strategy macdStrategy = macd(closePriceIndicator);
+        Strategy macdBuyStrategy = macdBuy(closePriceIndicator);
 
         BarSeriesManager seriesManager = new BarSeriesManager(series);
 
@@ -45,7 +46,7 @@ public class HMABacktest {
 
 
         //RSI
-        TradingRecord rsiBuyTradingRecord =seriesManager.run(rsiBuyStrategy, Order.OrderType.BUY,
+        TradingRecord rsiBuyTradingRecord = seriesManager.run(rsiBuyStrategy, Order.OrderType.BUY,
                 PrecisionNum.valueOf(0.01));
         PrecisionNum extraProfit = PrecisionNum.valueOf(0);
         for (Trade trade : rsiBuyTradingRecord.getTrades()) {
@@ -53,14 +54,20 @@ public class HMABacktest {
         }
         System.out.println("Buy Profit rsi: " + extraProfit);
 
-        //MACD
-        TradingRecord macdBuyTradingRecord =seriesManager.run(macdStrategy, Order.OrderType.BUY,
+        //MACD BUY
+        TradingRecord macdBuyTradingRecord = seriesManager.run(macdBuyStrategy, Order.OrderType.BUY,
                 PrecisionNum.valueOf(0.01));
         extraProfit = PrecisionNum.valueOf(0);
         for (Trade trade : macdBuyTradingRecord.getTrades()) {
+            if(trade.getProfit().isLessThan(PrecisionNum.valueOf(0))){
+                System.out.println(series.getBar(trade.getEntry().getIndex()));
+                System.out.println(series.getBar(trade.getExit().getIndex()));
+                System.out.println("---------------------------------");
+            }
             extraProfit = (PrecisionNum) extraProfit.plus(trade.getProfit());
         }
         System.out.println("Buy Profit MACD: " + extraProfit);
+
 
     }
 
@@ -84,20 +91,26 @@ public class HMABacktest {
 
     private static Strategy rsiBuy(ClosePriceIndicator priceIndicator, AveragePriceIndicator averagePriceIndicator) {
         RSIIndicator rsiIndicator = new RSIIndicator(priceIndicator, 12);
-        Rule entryRule = new UnderIndicatorRule(rsiIndicator,30);
-        Rule exitRule = new OverIndicatorRule(rsiIndicator,57)
-                .or(new StopGainRule(priceIndicator, PrecisionNum.valueOf(2)))
-                .or(new StopLossRule(priceIndicator, PrecisionNum.valueOf(0.5)));;
+        Rule entryRule = new UnderIndicatorRule(rsiIndicator, 30);
+        Rule exitRule = new OverIndicatorRule(rsiIndicator, 57)
+                .or(new StopGainRule(priceIndicator, PrecisionNum.valueOf(0.1)))
+                .or(new StopLossRule(priceIndicator, PrecisionNum.valueOf(0.5)));
         return new BaseStrategy(entryRule, exitRule);
     }
 
-    private static Strategy macd(ClosePriceIndicator priceIndicator){
+    private static Strategy macdBuy(ClosePriceIndicator priceIndicator) {
         MACDIndicator macdIndicator = new MACDIndicator(priceIndicator);
         EMAIndicator emaIndicator = new EMAIndicator(macdIndicator, 9);
-        Rule entryRule = new OverIndicatorRule(macdIndicator,emaIndicator);
-        Rule exitRule = new OverIndicatorRule(macdIndicator,emaIndicator);
-        return new BaseStrategy(entryRule, exitRule);
+        RSIIndicator rsiIndicator = new RSIIndicator(priceIndicator, 14);
 
+        HMAIndicator hmaIndicator = new HMAIndicator(priceIndicator, 50);
+
+        Rule entryRule = new CrossedUpIndicatorRule(macdIndicator, emaIndicator)
+                .and(new UnderIndicatorRule(rsiIndicator, 50));
+        Rule exitRule = new CrossedDownIndicatorRule(macdIndicator, emaIndicator)
+                .or(new StopGainRule(priceIndicator, PrecisionNum.valueOf(1)))
+                .or(new StopLossRule(priceIndicator, PrecisionNum.valueOf(0.5)));
+        return new BaseStrategy(entryRule, exitRule);
     }
 
 }

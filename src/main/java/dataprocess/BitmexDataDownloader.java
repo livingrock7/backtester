@@ -24,7 +24,7 @@ public class BitmexDataDownloader {
         try {
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            Date fromDate = simpleDateFormat.parse("01/05/2020");
+            Date fromDate = simpleDateFormat.parse("20/05/2020");
             Date toDate = simpleDateFormat.parse("21/05/2020");
             String symbol = "XBTUSD";
 
