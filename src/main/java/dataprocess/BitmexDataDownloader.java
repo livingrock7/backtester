@@ -45,7 +45,8 @@ public class BitmexDataDownloader {
     }
 
     private static StringBuilder getBitmexData(Date fromDate, Date toDate, String symbol) throws IOException {
-        URL url = new URL("https://www.bitmex.com/api/udf/history?symbol=" + symbol + "&resolution=5&from=" +
+        String s = "5";
+        URL url = new URL("https://www.bitmex.com/api/udf/history?symbol=" + symbol + "&resolution=" + s + "&from=" +
                 ((fromDate.getTime() / 1000)+300) + "&to=" + ((toDate.getTime() / 1000) - 300));
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
