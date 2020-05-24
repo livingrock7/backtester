@@ -1,8 +1,6 @@
 import dataprocess.BarDataLoader;
-import dataprocess.BitmexTimeFrameConverter;
 import lombok.Getter;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.*;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.ta4j.core.*;
 import org.ta4j.core.analysis.criteria.TotalProfitCriterion;
 import org.ta4j.core.num.PrecisionNum;
@@ -10,8 +8,6 @@ import strategy.RSIStrategy;
 import strategy.StrategyRule;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Stream;
@@ -21,7 +17,7 @@ public class Runner {
 
     Properties properties;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         Runner runner = new Runner();
         String filePath = Objects.requireNonNull(runner.getClass().getClassLoader().getResource("config.properties")).getPath();
