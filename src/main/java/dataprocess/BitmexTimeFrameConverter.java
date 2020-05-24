@@ -17,7 +17,7 @@ public class BitmexTimeFrameConverter {
 
     public static void main(String[] args) throws IOException {
         BarDataLoader dataLoader = new BarDataLoader();
-        BarSeries series = dataLoader.createBarSeriesBitMex("bitmex_XBTUSD_60m_MARCH_6_MARCH_14.csv", Integer.MAX_VALUE);
+        BarSeries series = dataLoader.createBarSeriesBitMex("bitmex_XBTUSD_60m_MARCH_6_MARCH_14.csv", "XBTUSD", Integer.MAX_VALUE);
         new BitmexTimeFrameConverter().convertTo(series, 60, 240);
     }
 

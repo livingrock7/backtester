@@ -2,7 +2,6 @@ package dataprocess;
 
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.BaseBarSeriesBuilder;
-import strategy.HMASlopeTest;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,9 +36,8 @@ public class BarDataLoader {
         return series;
     }
 
-    public BarSeries createBarSeriesBitMex(String filename, int maxBarCount) throws IOException {
-        String filePath = Objects.requireNonNull(BitmexTimeFrameConverter.class.getClassLoader().getResource(filename)).getPath();
-        BarSeries series = new BaseBarSeriesBuilder().withName("XBTUSD").build();
+    public BarSeries createBarSeriesBitMex(String filePath, String symbol, int maxBarCount) throws IOException {
+        BarSeries series = new BaseBarSeriesBuilder().withName(symbol).build();
         Duration duration = Duration.ofMinutes(5);
         series.setMaximumBarCount(maxBarCount);
         ZoneId zoneId = ZoneId.of("UTC");
