@@ -23,15 +23,21 @@ public class Runner {
         String filePath = Objects.requireNonNull(runner.getClass().getClassLoader().getResource("config.properties")).getPath();
         runner.loadProps(filePath);
 
-        StrategyRule rule = new RSIStrategy();
-
-        Stream.of(Objects.requireNonNull(
-                new File(runner.getProperties().getProperty("file.url"))
-                        .listFiles((FileFilter) FileFilterUtils.directoryFileFilter())))
-                .forEach(t -> {
-                    System.out.println(t.getName());
-                    for (File file : Objects.requireNonNull(t.listFiles())) {
-                        loadAndTest(rule, file);
+        Stream.of(RSIStrategy.class)
+                .forEach(c -> {
+                    try {
+                        StrategyRule rule = c.newInstance();
+                        Stream.of(Objects.requireNonNull(
+                                new File(runner.getProperties().getProperty("file.url"))
+                                        .listFiles((FileFilter) FileFilterUtils.directoryFileFilter())))
+                                .forEach(t -> {
+                                    System.out.println(t.getName());
+                                    for (File file : Objects.requireNonNull(t.listFiles())) {
+                                        loadAndTest(rule, file);
+                                    }
+                                });
+                    } catch (InstantiationException | IllegalAccessException e) {
+                        e.printStackTrace();
                     }
                 });
 
@@ -54,6 +60,7 @@ public class Runner {
             TradingRecord shorts = seriesManager.run(shortStrategy, Order.OrderType.SELL, PrecisionNum.valueOf(1));
             TotalProfitCriterion shortProfit = new TotalProfitCriterion();
             System.out.println(file.getName() + " - Short Profit :: " + shortProfit.calculate(series, shorts));
+            System.out.println("---------------");
 
         } catch (IOException e) {
             e.printStackTrace();
