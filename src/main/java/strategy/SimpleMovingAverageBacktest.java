@@ -1,8 +1,10 @@
+package strategy;
+
+import customindicators.AveragePriceIndicator;
 import org.ta4j.core.*;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.analysis.criteria.TotalProfitCriterion;
 import org.ta4j.core.indicators.SMAIndicator;
-import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 import org.ta4j.core.num.Num;
 import org.ta4j.core.num.PrecisionNum;
 import org.ta4j.core.trading.rules.OverIndicatorRule;
@@ -45,7 +47,7 @@ public class SimpleMovingAverageBacktest {
     }
 
     private static BarSeries createBarSeries() throws IOException {
-        String filePath = Objects.requireNonNull(CleanUp.class.getClassLoader().getResource("BTCUSD_2017_2019_5m_clean.txt")).getPath();
+        String filePath = Objects.requireNonNull(SimpleMovingAverageBacktest.class.getClassLoader().getResource("BTCUSD_2017_2019_5m_clean.txt")).getPath();
         BarSeries series = new BaseBarSeriesBuilder().withName("BTC_USD").build();
         Duration duration = Duration.ofMinutes(5);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[d][dd]-MMM-uu [HH][H]:[mm][m] z");

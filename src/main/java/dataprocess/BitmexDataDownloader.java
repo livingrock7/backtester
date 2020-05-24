@@ -13,6 +13,9 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Month;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,31 +26,29 @@ public class BitmexDataDownloader {
 
         try {
 
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            Date fromDate = simpleDateFormat.parse("20/05/2020");
-            Date toDate = simpleDateFormat.parse("21/05/2020");
+            ZonedDateTime fromDate = ZonedDateTime.of(2020, 3, 6, 0, 0, 0, 0, ZoneId.of("UTC"));
+            ZonedDateTime toDate = ZonedDateTime.of(2020, 3, 14, 0, 0, 0, 0, ZoneId.of("UTC"));
             String symbol = "XBTUSD";
+            String period = "60";
 
-            Path source = Paths.get(System.getProperty("user.home") + "/Downloads/bitmex_" + symbol + "_" + Month.of(fromDate.getMonth() + 1) + "_" + fromDate.getDate() + "_" +
-                    Month.of(toDate.getMonth() + 1) + "_" + toDate.getDate() + ".csv");
+            Path source = Paths.get(System.getProperty("user.home") + "/Downloads/bitmex_" + symbol + "_" + period + "m_"
+                    + fromDate.getMonth() + "_" + fromDate.getDayOfMonth() + "_"
+                    + toDate.getMonth() + "_" + toDate.getDayOfMonth() + ".csv");
             File file = new File(source.toUri());
 
-            StringBuilder builder = getBitmexData(fromDate, toDate, symbol);
-
+            StringBuilder builder = getBitmexData(fromDate, toDate, period, symbol);
             JSONObject jsonObject = JSON.parseObject(builder.toString());
-
             writeToCSV(file, jsonObject);
 
-        } catch (IOException | ParseException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
-    private static StringBuilder getBitmexData(Date fromDate, Date toDate, String symbol) throws IOException {
-        String s = "5";
-        URL url = new URL("https://www.bitmex.com/api/udf/history?symbol=" + symbol + "&resolution=" + s + "&from=" +
-                ((fromDate.getTime() / 1000)+300) + "&to=" + ((toDate.getTime() / 1000) - 300));
+    private static StringBuilder getBitmexData(ZonedDateTime fromDate, ZonedDateTime toDate, String period, String symbol) throws IOException {
+        URL url = new URL("https://www.bitmex.com/api/udf/history?symbol=" + symbol + "&resolution=" + period + "&from=" +
+                ((fromDate.toEpochSecond()) + 300) + "&to=" + ((toDate.toEpochSecond()) - 300));
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");

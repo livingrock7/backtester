@@ -1,3 +1,5 @@
+package customindicators;
+
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.indicators.helpers.PriceIndicator;
 import org.ta4j.core.num.DoubleNum;

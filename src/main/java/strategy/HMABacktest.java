@@ -1,3 +1,7 @@
+package strategy;
+
+import customindicators.AveragePriceIndicator;
+import dataprocess.BarDataLoader;
 import org.ta4j.core.*;
 import org.ta4j.core.indicators.EMAIndicator;
 import org.ta4j.core.indicators.HMAIndicator;

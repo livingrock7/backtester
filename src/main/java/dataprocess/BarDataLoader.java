@@ -1,5 +1,8 @@
+package dataprocess;
+
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.BaseBarSeriesBuilder;
+import strategy.HMASlopeTest;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,9 +18,8 @@ import static java.lang.Double.parseDouble;
 
 public class BarDataLoader {
 
-
     BarSeries createBarSeriesL1(String filename, int maxBarCount) throws IOException {
-        String filePath = Objects.requireNonNull(CleanUp.class.getClassLoader().getResource(filename)).getPath();
+        String filePath = Objects.requireNonNull(BarDataLoader.class.getClassLoader().getResource(filename)).getPath();
         BarSeries series = new BaseBarSeriesBuilder().withName("BTC_USD").build();
         Duration duration = Duration.ofMinutes(5);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[d][dd]-MMM-uu [HH][H]:[mm][m] z");
@@ -35,9 +37,9 @@ public class BarDataLoader {
         return series;
     }
 
-    BarSeries createBarSeriesBitMex(String filename, int maxBarCount) throws IOException {
-        String filePath = Objects.requireNonNull(CleanUp.class.getClassLoader().getResource(filename)).getPath();
-        BarSeries series = new BaseBarSeriesBuilder().withName("BTC_USD").build();
+    public BarSeries createBarSeriesBitMex(String filename, int maxBarCount) throws IOException {
+        String filePath = Objects.requireNonNull(BitmexTimeFrameConverter.class.getClassLoader().getResource(filename)).getPath();
+        BarSeries series = new BaseBarSeriesBuilder().withName("XBTUSD").build();
         Duration duration = Duration.ofMinutes(5);
         series.setMaximumBarCount(maxBarCount);
         ZoneId zoneId = ZoneId.of("UTC");

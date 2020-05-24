@@ -1,3 +1,5 @@
+package customindicators;
+
 import org.ta4j.core.Indicator;
 import org.ta4j.core.num.Num;
 import org.ta4j.core.trading.rules.UnderIndicatorRule;
