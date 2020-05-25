@@ -4,10 +4,7 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.ta4j.core.*;
 import org.ta4j.core.analysis.criteria.TotalProfitCriterion;
 import org.ta4j.core.num.PrecisionNum;
-import strategy.BollingerBandStrategy;
-import strategy.IchimokuStrategy;
-import strategy.RSIStrategy;
-import strategy.StrategyRule;
+import strategy.*;
 
 import java.io.*;
 import java.util.Objects;
@@ -55,14 +52,52 @@ public class Runner {
             Strategy longStrategy = rule.getLongStrategy(series);
             Strategy shortStrategy = rule.getShortStrategy(series);
 
+            int winningLongTrades = 0;
+            int winningShortTrades = 0;
+            int losingLongTrades = 0;
+            int losingShortTrades = 0;
+
             TradingRecord longs = seriesManager.run(longStrategy, Order.OrderType.BUY, PrecisionNum.valueOf(10));
+            for (Trade trade : longs.getTrades()) {
+                System.out.println(series.getBar(trade.getEntry().getIndex()));
+                System.out.println(series.getBar(trade.getExit().getIndex()));
+                System.out.println("---------------------------------");
+                if(trade.getProfit().isGreaterThan(PrecisionNum.valueOf(0)))
+                {
+                    winningLongTrades++;
+                }
+                else
+                {
+                    losingLongTrades++;
+                }
+            }
             TotalProfitCriterion longProfit = new TotalProfitCriterion();
+            System.out.println("Number of long trades: " + longs.getTrades().size());
             System.out.println(file.getName() + " - Long Profit :: " + longProfit.calculate(series, longs));
+            //Double ratio = (double) (winningLongTrades / losingLongTrades);
+            System.out.println("Win to lose ratio for long trades:" + winningLongTrades + "/" + losingLongTrades);
 
             TradingRecord shorts = seriesManager.run(shortStrategy, Order.OrderType.SELL, PrecisionNum.valueOf(10));
             TotalProfitCriterion shortProfit = new TotalProfitCriterion();
+            System.out.println("Number of short trades: " + shorts.getTrades().size());
+            for (Trade trade : shorts.getTrades()) {
+                System.out.println(series.getBar(trade.getEntry().getIndex()));
+                System.out.println(series.getBar(trade.getExit().getIndex()));
+                System.out.println("---------------------------------");
+                if(trade.getProfit().isGreaterThan(PrecisionNum.valueOf(0)))
+                {
+                    winningShortTrades++;
+                }
+                else
+                {
+                    losingShortTrades++;
+                }
+            }
             System.out.println(file.getName() + " - Short Profit :: " + shortProfit.calculate(series, shorts));
+            System.out.println("Win to lose ratio for short trades:" + winningShortTrades + "/" + losingShortTrades);
             System.out.println("---------------");
+            int total = longs.getTrades().size() + shorts.getTrades().size();
+            System.out.println("Total trades: " + total);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,6 +112,4 @@ public class Runner {
             ex.printStackTrace();
         }
     }
-
-
 }
