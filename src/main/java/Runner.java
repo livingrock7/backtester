@@ -4,6 +4,8 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.ta4j.core.*;
 import org.ta4j.core.analysis.criteria.TotalProfitCriterion;
 import org.ta4j.core.num.PrecisionNum;
+import strategy.BollingerBandStrategy;
+import strategy.IchimokuStrategy;
 import strategy.RSIStrategy;
 import strategy.StrategyRule;
 
@@ -23,7 +25,7 @@ public class Runner {
         String filePath = Objects.requireNonNull(runner.getClass().getClassLoader().getResource("config.properties")).getPath();
         runner.loadProps(filePath);
 
-        Stream.of(RSIStrategy.class)
+        Stream.of(IchimokuStrategy.class)
                 .forEach(c -> {
                     try {
                         StrategyRule rule = c.newInstance();
@@ -53,11 +55,11 @@ public class Runner {
             Strategy longStrategy = rule.getLongStrategy(series);
             Strategy shortStrategy = rule.getShortStrategy(series);
 
-            TradingRecord longs = seriesManager.run(longStrategy, Order.OrderType.BUY, PrecisionNum.valueOf(1));
+            TradingRecord longs = seriesManager.run(longStrategy, Order.OrderType.BUY, PrecisionNum.valueOf(1.5));
             TotalProfitCriterion longProfit = new TotalProfitCriterion();
             System.out.println(file.getName() + " - Long Profit :: " + longProfit.calculate(series, longs));
 
-            TradingRecord shorts = seriesManager.run(shortStrategy, Order.OrderType.SELL, PrecisionNum.valueOf(1));
+            TradingRecord shorts = seriesManager.run(shortStrategy, Order.OrderType.SELL, PrecisionNum.valueOf(1.5));
             TotalProfitCriterion shortProfit = new TotalProfitCriterion();
             System.out.println(file.getName() + " - Short Profit :: " + shortProfit.calculate(series, shorts));
             System.out.println("---------------");

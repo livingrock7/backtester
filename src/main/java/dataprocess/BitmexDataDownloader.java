@@ -26,10 +26,10 @@ public class BitmexDataDownloader {
 
         try {
 
-            ZonedDateTime fromDate = ZonedDateTime.of(2020, 3, 6, 0, 0, 0, 0, ZoneId.of("UTC"));
-            ZonedDateTime toDate = ZonedDateTime.of(2020, 3, 14, 0, 0, 0, 0, ZoneId.of("UTC"));
+            ZonedDateTime fromDate = ZonedDateTime.of(2019, 8, 6, 0, 0, 0, 0, ZoneId.of("UTC"));
+            ZonedDateTime toDate = ZonedDateTime.of(2020, 5, 15, 0, 0, 0, 0, ZoneId.of("UTC"));
             String symbol = "XBTUSD";
-            String period = "60";
+            String period = "D";
 
             Path source = Paths.get(System.getProperty("user.home") + "/Downloads/bitmex_" + symbol + "_" + period + "m_"
                     + fromDate.getMonth() + "_" + fromDate.getDayOfMonth() + "_"
