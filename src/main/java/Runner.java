@@ -55,11 +55,11 @@ public class Runner {
             Strategy longStrategy = rule.getLongStrategy(series);
             Strategy shortStrategy = rule.getShortStrategy(series);
 
-            TradingRecord longs = seriesManager.run(longStrategy, Order.OrderType.BUY, PrecisionNum.valueOf(1.5));
+            TradingRecord longs = seriesManager.run(longStrategy, Order.OrderType.BUY, PrecisionNum.valueOf(10));
             TotalProfitCriterion longProfit = new TotalProfitCriterion();
             System.out.println(file.getName() + " - Long Profit :: " + longProfit.calculate(series, longs));
 
-            TradingRecord shorts = seriesManager.run(shortStrategy, Order.OrderType.SELL, PrecisionNum.valueOf(1.5));
+            TradingRecord shorts = seriesManager.run(shortStrategy, Order.OrderType.SELL, PrecisionNum.valueOf(10));
             TotalProfitCriterion shortProfit = new TotalProfitCriterion();
             System.out.println(file.getName() + " - Short Profit :: " + shortProfit.calculate(series, shorts));
             System.out.println("---------------");

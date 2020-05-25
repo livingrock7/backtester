@@ -1,6 +1,7 @@
 package strategy;
 
 //import jdk.internal.org.jline.utils.DiffHelper;
+import customindicators.AveragePriceIndicator;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.BaseStrategy;
 import org.ta4j.core.Rule;
@@ -23,8 +24,8 @@ public class IchimokuStrategy implements StrategyRule{
         IchimokuSenkouSpanAIndicator greenLine = new IchimokuSenkouSpanAIndicator(series);
         IchimokuSenkouSpanBIndicator redLine = new IchimokuSenkouSpanBIndicator(series);
         DifferenceIndicator diff = new DifferenceIndicator(blueLine,redLine);
-
-        Rule entryRule = new OverIndicatorRule(greenLine,50).and(new OverIndicatorRule(redLine,50)).and(new CrossedUpIndicatorRule(blueLine,50));
+        AveragePriceIndicator averagePriceIndicator = new AveragePriceIndicator(series);
+        Rule entryRule = new OverIndicatorRule(greenLine,averagePriceIndicator).and(new OverIndicatorRule(redLine,averagePriceIndicator)).and(new CrossedUpIndicatorRule(blueLine,averagePriceIndicator));
         Rule exitRule = new UnderIndicatorRule(blueLine,50)
                 .or(new StopGainRule(close, PrecisionNum.valueOf(2)))
                 .or(new StopLossRule(close, PrecisionNum.valueOf(1)));
@@ -39,9 +40,9 @@ public class IchimokuStrategy implements StrategyRule{
         IchimokuSenkouSpanAIndicator greenLine = new IchimokuSenkouSpanAIndicator(series);
         IchimokuSenkouSpanBIndicator redLine = new IchimokuSenkouSpanBIndicator(series);
         DifferenceIndicator diff = new DifferenceIndicator(blueLine,redLine);
-
-        Rule entryRule = new UnderIndicatorRule(greenLine,50).and(new UnderIndicatorRule(redLine,50)).and(new CrossedDownIndicatorRule(maroonLine,50));
-        Rule exitRule = new UnderIndicatorRule(blueLine,50)
+        AveragePriceIndicator averagePriceIndicator = new AveragePriceIndicator(series);
+        Rule entryRule = new UnderIndicatorRule(greenLine,averagePriceIndicator).and(new UnderIndicatorRule(redLine,averagePriceIndicator)).and(new CrossedDownIndicatorRule(maroonLine,averagePriceIndicator));
+        Rule exitRule = new UnderIndicatorRule(blueLine,averagePriceIndicator)
                 .or(new StopGainRule(close, PrecisionNum.valueOf(2)))
                 .or(new StopLossRule(close, PrecisionNum.valueOf(1)));
         return new BaseStrategy(entryRule,exitRule);
