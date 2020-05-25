@@ -33,7 +33,6 @@ public class Starter {
                 ));
 
         BarSeriesManager seriesManager = new BarSeriesManager(series);
-
         System.out.println(series);
 
 
