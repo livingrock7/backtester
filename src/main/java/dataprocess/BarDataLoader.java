@@ -38,7 +38,7 @@ public class BarDataLoader {
 
     public BarSeries createBarSeriesBitMex(String filePath, String symbol, int maxBarCount) throws IOException {
         BarSeries series = new BaseBarSeriesBuilder().withName(symbol).build();
-        Duration duration = Duration.ofMinutes(5);
+        Duration duration = Duration.ofMinutes(15);
         series.setMaximumBarCount(maxBarCount);
         ZoneId zoneId = ZoneId.of("UTC");
         Files.lines(Paths.get(filePath))

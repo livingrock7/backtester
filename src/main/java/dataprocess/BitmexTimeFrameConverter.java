@@ -59,7 +59,11 @@ public class BitmexTimeFrameConverter {
                 volume = (PrecisionNum) volume.plus(series.getBar(j).getVolume());
             }
             PrecisionNum close = (PrecisionNum) series.getBar(j - 1).getClosePrice();
-            data.add(new String[]{series.getBar(j).getEndTime().toEpochSecond() + "", open.toString(), high.toString(), low.toString(), close.toString(), volume.toString()});
+            try {
+                data.add(new String[]{series.getBar(j).getEndTime().toEpochSecond() + "", open.toString(), high.toString(), low.toString(), close.toString(), volume.toString()});
+            }catch (Exception e){
+                System.out.println("Skipped last bar");
+            }
         }
 
         writer.writeAll(data);

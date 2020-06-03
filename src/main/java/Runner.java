@@ -4,7 +4,8 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.ta4j.core.*;
 import org.ta4j.core.analysis.criteria.TotalProfitCriterion;
 import org.ta4j.core.num.PrecisionNum;
-import strategy.*;
+import strategy.HMABBStart;
+import strategy.StrategyRule;
 
 import java.io.*;
 import java.util.Objects;
@@ -22,7 +23,7 @@ public class Runner {
         String filePath = Objects.requireNonNull(runner.getClass().getClassLoader().getResource("config.properties")).getPath();
         runner.loadProps(filePath);
 
-        Stream.of(IchimokuStrategy.class)
+        Stream.of(HMABBStart.class)
                 .forEach(c -> {
                     try {
                         StrategyRule rule = c.newInstance();
@@ -52,57 +53,47 @@ public class Runner {
             Strategy longStrategy = rule.getLongStrategy(series);
             Strategy shortStrategy = rule.getShortStrategy(series);
 
-            int winningLongTrades = 0;
-            int winningShortTrades = 0;
-            int losingLongTrades = 0;
-            int losingShortTrades = 0;
-
             TradingRecord longs = seriesManager.run(longStrategy, Order.OrderType.BUY, PrecisionNum.valueOf(10));
-            for (Trade trade : longs.getTrades()) {
-                System.out.println(series.getBar(trade.getEntry().getIndex()));
-                System.out.println(series.getBar(trade.getExit().getIndex()));
-                System.out.println("---------------------------------");
-                if(trade.getProfit().isGreaterThan(PrecisionNum.valueOf(0)))
-                {
-                    winningLongTrades++;
-                }
-                else
-                {
-                    losingLongTrades++;
-                }
-            }
             TotalProfitCriterion longProfit = new TotalProfitCriterion();
-            System.out.println("Number of long trades: " + longs.getTrades().size());
-            System.out.println(file.getName() + " - Long Profit :: " + longProfit.calculate(series, longs));
-            //Double ratio = (double) (winningLongTrades / losingLongTrades);
-            System.out.println("Win to lose ratio for long trades:" + winningLongTrades + "/" + losingLongTrades);
+            System.out.println(file.getName() + " - Long Profit :: ");
+            calcProfit(longs, "LONGS");
+            printTrades(longs, series);
 
             TradingRecord shorts = seriesManager.run(shortStrategy, Order.OrderType.SELL, PrecisionNum.valueOf(10));
             TotalProfitCriterion shortProfit = new TotalProfitCriterion();
-            System.out.println("Number of short trades: " + shorts.getTrades().size());
-            for (Trade trade : shorts.getTrades()) {
-                System.out.println(series.getBar(trade.getEntry().getIndex()));
-                System.out.println(series.getBar(trade.getExit().getIndex()));
-                System.out.println("---------------------------------");
-                if(trade.getProfit().isGreaterThan(PrecisionNum.valueOf(0)))
-                {
-                    winningShortTrades++;
-                }
-                else
-                {
-                    losingShortTrades++;
-                }
-            }
-            System.out.println(file.getName() + " - Short Profit :: " + shortProfit.calculate(series, shorts));
-            System.out.println("Win to lose ratio for short trades:" + winningShortTrades + "/" + losingShortTrades);
+            System.out.println(file.getName() + " - Short Profit :: ");
+            calcProfit(shorts, "SHORTS");
             System.out.println("---------------");
-            int total = longs.getTrades().size() + shorts.getTrades().size();
-            System.out.println("Total trades: " + total);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    public static void calcProfit(TradingRecord tradingRecord, String side) {
+        PrecisionNum profit = PrecisionNum.valueOf(0);
+        if (side.equals("LONGS")) {
+            for (Trade trade : tradingRecord.getTrades()) {
+                profit = PrecisionNum.valueOf((PrecisionNum) profit.plus(trade.getExit().getNetPrice().minus(trade.getEntry().getNetPrice())));
+            }
+        } else {
+            for (Trade trade : tradingRecord.getTrades()) {
+                profit = PrecisionNum.valueOf((PrecisionNum) profit.plus(trade.getEntry().getNetPrice().minus(trade.getExit().getNetPrice())));
+            }
+        }
+        System.out.println("Profit :: " + profit);
+    }
+
+    private static void printTrades(TradingRecord tradingRecord, BarSeries series) {
+        for (Trade trade : tradingRecord.getTrades()) {
+            System.out.println("Time :;" + series.getBar(trade.getEntry().getIndex()).getEndTime());
+            System.out.println("Entry :: " + trade.getEntry());
+            System.out.println("Exit :: " + trade.getExit());
+            System.out.println("Time :;" + series.getBar(trade.getExit().getIndex()).getEndTime());
+            System.out.println("-------------");
+        }
+    }
+
 
     private void loadProps(String path) {
         try (InputStream input = new FileInputStream(path)) {
