@@ -4,7 +4,7 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.ta4j.core.*;
 import org.ta4j.core.analysis.criteria.TotalProfitCriterion;
 import org.ta4j.core.num.PrecisionNum;
-import strategy.HMABBStart;
+import strategy.IchimokuStrategy;
 import strategy.StrategyRule;
 
 import java.io.*;
@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 public class Runner {
 
     Properties properties;
+    static PrecisionNum size = PrecisionNum.valueOf(1);
 
     public static void main(String[] args) {
 
@@ -23,7 +24,7 @@ public class Runner {
         String filePath = Objects.requireNonNull(runner.getClass().getClassLoader().getResource("config.properties")).getPath();
         runner.loadProps(filePath);
 
-        Stream.of(HMABBStart.class)
+        Stream.of(IchimokuStrategy.class)
                 .forEach(c -> {
                     try {
                         StrategyRule rule = c.newInstance();
@@ -53,16 +54,17 @@ public class Runner {
             Strategy longStrategy = rule.getLongStrategy(series);
             Strategy shortStrategy = rule.getShortStrategy(series);
 
-            TradingRecord longs = seriesManager.run(longStrategy, Order.OrderType.BUY, PrecisionNum.valueOf(10));
+            TradingRecord longs = seriesManager.run(longStrategy, Order.OrderType.BUY, size);
             TotalProfitCriterion longProfit = new TotalProfitCriterion();
             System.out.println(file.getName() + " - Long Profit :: ");
             calcProfit(longs, "LONGS");
             printTrades(longs, series);
 
-            TradingRecord shorts = seriesManager.run(shortStrategy, Order.OrderType.SELL, PrecisionNum.valueOf(10));
+            TradingRecord shorts = seriesManager.run(shortStrategy, Order.OrderType.SELL, size);
             TotalProfitCriterion shortProfit = new TotalProfitCriterion();
             System.out.println(file.getName() + " - Short Profit :: ");
             calcProfit(shorts, "SHORTS");
+            printTrades(shorts, series);
             System.out.println("---------------");
 
         } catch (IOException e) {
@@ -74,7 +76,7 @@ public class Runner {
         PrecisionNum profit = PrecisionNum.valueOf(0);
         if (side.equals("LONGS")) {
             for (Trade trade : tradingRecord.getTrades()) {
-                profit = PrecisionNum.valueOf((PrecisionNum) profit.plus(trade.getExit().getNetPrice().minus(trade.getEntry().getNetPrice())));
+                profit = PrecisionNum.valueOf((PrecisionNum) profit.plus(trade.getExit().getNetPrice().minus(trade.getEntry().getNetPrice())).multipliedBy(size));
             }
         } else {
             for (Trade trade : tradingRecord.getTrades()) {

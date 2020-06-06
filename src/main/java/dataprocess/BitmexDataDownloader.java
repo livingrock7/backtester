@@ -10,14 +10,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class BitmexDataDownloader {
@@ -26,8 +21,8 @@ public class BitmexDataDownloader {
 
         try {
 
-            ZonedDateTime fromDate = ZonedDateTime.of(2019, 8, 6, 0, 0, 0, 0, ZoneId.of("UTC"));
-            ZonedDateTime toDate = ZonedDateTime.of(2020, 5, 15, 0, 0, 0, 0, ZoneId.of("UTC"));
+            ZonedDateTime fromDate = ZonedDateTime.of(2018, 10, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
+            ZonedDateTime toDate = ZonedDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
             String symbol = "XBTUSD";
             String period = "D";
 
