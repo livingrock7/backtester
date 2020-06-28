@@ -20,7 +20,7 @@ public class HMABBStart implements StrategyRule {
         ClosePriceIndicator close = new ClosePriceIndicator(series);
         SMAIndicator sma20 = new SMAIndicator(close, 20);
         BollingerBandsMiddleIndicator bbMiddle = new BollingerBandsMiddleIndicator(sma20);
-        BollingerBandsUpperIndicator upper = new BollingerBandsUpperIndicator(bbMiddle, new StandardDeviationIndicator(bbMiddle, 20), PrecisionNum.valueOf(2));
+        //BollingerBandsUpperIndicator upper = new BollingerBandsUpperIndicator(bbMiddle, new StandardDeviationIndicator(bbMiddle, 20), PrecisionNum.valueOf(2));
         RSIIndicator rsiIndicator = new RSIIndicator(close, 14);
 
         HMAIndicator hma20 = new HMAIndicator(close, 20);

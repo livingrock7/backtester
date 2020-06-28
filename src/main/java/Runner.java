@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 public class Runner {
 
     Properties properties;
-    static PrecisionNum size = PrecisionNum.valueOf(10);
+    static PrecisionNum size = PrecisionNum.valueOf(1);
     // This is our starting balance
 
     public static void main(String[] args) {
@@ -26,7 +26,7 @@ public class Runner {
         String filePath = Objects.requireNonNull(runner.getClass().getClassLoader().getResource("config.properties")).getPath();
         runner.loadProps(filePath);
 
-        Stream.of(IchimokuStrategy.class)
+        Stream.of(BollingerBandStrategy.class)
                 .forEach(c -> {
                     try {
                         StrategyRule rule = c.newInstance();
@@ -94,7 +94,7 @@ public class Runner {
         PrecisionNum profit = PrecisionNum.valueOf(0);
         if (side.equals("LONGS")) {
             for (Trade trade : tradingRecord.getTrades()) {
-                profit = PrecisionNum.valueOf((PrecisionNum) profit.plus(trade.getExit().getNetPrice().minus(trade.getEntry().getNetPrice())).multipliedBy(size));
+                profit = PrecisionNum.valueOf((PrecisionNum) profit.plus(trade.getExit().getNetPrice().minus(trade.getEntry().getNetPrice()).multipliedBy(size)));
             }
         } else {
             for (Trade trade : tradingRecord.getTrades()) {

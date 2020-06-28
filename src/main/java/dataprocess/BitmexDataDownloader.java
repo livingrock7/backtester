@@ -21,7 +21,7 @@ public class BitmexDataDownloader {
 
         try {
 
-            ZonedDateTime fromDate = ZonedDateTime.of(2020, 6, 26, 0, 0, 0, 0, ZoneId.of("UTC"));
+            ZonedDateTime fromDate = ZonedDateTime.of(2020, 6, 20, 0, 0, 0, 0, ZoneId.of("UTC"));
             ZonedDateTime toDate = ZonedDateTime.of(2020, 6, 27, 0, 0, 0, 0, ZoneId.of("UTC"));
             String symbol = "XBTUSD";
             String period = "60";
