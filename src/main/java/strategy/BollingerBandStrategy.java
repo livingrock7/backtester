@@ -1,6 +1,7 @@
 package strategy;
 
 import customindicators.AveragePriceIndicator;
+import customindicators.IsMovingDownRule;
 import customindicators.IsMovingUpRule;
 import org.ta4j.core.BarSeries;
 import org.ta4j.core.BaseStrategy;
@@ -49,7 +50,8 @@ public class BollingerBandStrategy implements StrategyRule{
         BollingerBandsUpperIndicator bbUpperBand = new BollingerBandsUpperIndicator(bbMiddleBand,stdDev,PrecisionNum.valueOf(2));
         BollingerBandsLowerIndicator bbLowerBand = new BollingerBandsLowerIndicator(bbMiddleBand,stdDev,PrecisionNum.valueOf(2));
         DifferenceIndicator diffHigh = new DifferenceIndicator(bbUpperBand,close);
-        Rule entryRule = new OverIndicatorRule(diffHigh,-5).and(new UnderIndicatorRule(diffHigh,5)).and(new CrossedDownIndicatorRule(rsi,59.40));
+        //Rule entryRule = new OverIndicatorRule(diffHigh,-5).and(new UnderIndicatorRule(diffHigh,5)).and(new CrossedDownIndicatorRule(rsi,59.40));
+        Rule entryRule = new UnderIndicatorRule(rsi,59.40).and(new IsMovingDownRule(rsi,2));
         Rule exitRule = new IsMovingUpRule(bbUpperBand,3).or(new StopGainRule(close, PrecisionNum.valueOf(2)))
                 .or(new StopLossRule(close, PrecisionNum.valueOf(1)));
         return new BaseStrategy(entryRule,exitRule);
