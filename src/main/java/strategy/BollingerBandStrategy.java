@@ -25,7 +25,7 @@ public class BollingerBandStrategy implements StrategyRule{
         AveragePriceIndicator averagePriceIndicator = new AveragePriceIndicator(series);
         SMAIndicator sma = new SMAIndicator(averagePriceIndicator, 200);
         BollingerBandsMiddleIndicator bbMiddleBand = new BollingerBandsMiddleIndicator(close);
-        StandardDeviationIndicator stdDev = new StandardDeviationIndicator(close,20);
+        StandardDeviationIndicator stdDev = new StandardDeviationIndicator(close,12);
         //BollingerBandsUpperIndicator bbUpperBand = new BollingerBandsUpperIndicator(bbMiddleBand,emaIndicator,PrecisionNum.valueOf(2));
         //BollingerBandsLowerIndicator bbLowerBand = new BollingerBandsLowerIndicator(bbMiddleBand,emaIndicator,PrecisionNum.valueOf(2));
         BollingerBandsUpperIndicator bbUpperBand = new BollingerBandsUpperIndicator(bbMiddleBand,stdDev,PrecisionNum.valueOf(2));

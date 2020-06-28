@@ -4,6 +4,7 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.ta4j.core.*;
 import org.ta4j.core.analysis.criteria.TotalProfitCriterion;
 import org.ta4j.core.num.PrecisionNum;
+import strategy.BollingerBandStrategy;
 import strategy.IchimokuStrategy;
 import strategy.StrategyRule;
 
@@ -16,7 +17,8 @@ import java.util.stream.Stream;
 public class Runner {
 
     Properties properties;
-    static PrecisionNum size = PrecisionNum.valueOf(1);
+    static PrecisionNum size = PrecisionNum.valueOf(10);
+    // This is our starting balance
 
     public static void main(String[] args) {
 
@@ -54,6 +56,10 @@ public class Runner {
             Strategy longStrategy = rule.getLongStrategy(series);
             Strategy shortStrategy = rule.getShortStrategy(series);
 
+
+            // calculate drawdown for each trade
+            // % drawdown for each trade
+            // also R&R
             TradingRecord longs = seriesManager.run(longStrategy, Order.OrderType.BUY, size);
             TotalProfitCriterion longProfit = new TotalProfitCriterion();
             System.out.println(file.getName() + " - Long Profit :: ");
@@ -66,6 +72,18 @@ public class Runner {
             calcProfit(shorts, "SHORTS");
             printTrades(shorts, series);
             System.out.println("---------------");
+
+            int totalTrades = longs.getTrades().size() + shorts.getTrades().size();
+            System.out.println("Total number of trades: " + totalTrades);
+
+            // positive # of trades (long or short) // and average % gain for the same
+            // negative # of trades (long or short) // and average % loss for the same
+                /* whenever these is loss fetch stop loss as well. SL is factor of risk per position */
+
+
+            // returns %
+            // total gain in value
+
 
         } catch (IOException e) {
             e.printStackTrace();
