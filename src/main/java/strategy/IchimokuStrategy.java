@@ -34,7 +34,7 @@ public class IchimokuStrategy implements StrategyRule {
 
         Rule exitRule = new UnderIndicatorRule(close, maroonLine)
                 .or(new UnderIndicatorRule(rsi, 50))
-                .or(new StopGainRule(close, PrecisionNum.valueOf(50)))
+                .or(new StopGainRule(close, PrecisionNum.valueOf(25)))
                 .or(new StopLossRule(close, PrecisionNum.valueOf(5)));
 
         return new BaseStrategy(entryRule, exitRule);
@@ -47,17 +47,18 @@ public class IchimokuStrategy implements StrategyRule {
         IchimokuTenkanSenIndicator blueLine = new IchimokuTenkanSenIndicator(series, 9);
         AdjustedIchimokuSpanAIndicator greenLine = new AdjustedIchimokuSpanAIndicator(series, blueLine, maroonLine);
         AdjustedIchimokuSpanBIndicator redLine = new AdjustedIchimokuSpanBIndicator(series);
+        RSIIndicator rsi = new RSIIndicator(close, 14);
 
-        Rule entryRule = new UnderIndicatorRule(blueLine, maroonLine)
-                .and(new UnderIndicatorRule(maroonLine, greenLine))
-                .and(new CrossedDownIndicatorRule(maroonLine, redLine))
-                .and(new UnderIndicatorRule(close, blueLine));
-
+        Rule entryRule = new UnderIndicatorRule(maroonLine, greenLine)
+                .and(new UnderIndicatorRule(maroonLine, redLine))
+                .and(new UnderIndicatorRule(blueLine, maroonLine))
+                .and(new UnderIndicatorRule(close, blueLine))
+                .and(new OverIndicatorRule(rsi, 30));
 
         Rule exitRule = new OverIndicatorRule(close, maroonLine)
                 .or(new OverIndicatorRule(blueLine, maroonLine))
-                .or(new StopGainRule(close, PrecisionNum.valueOf(35)))
-                .or(new StopLossRule(close, PrecisionNum.valueOf(5)));
+                .or(new StopGainRule(close, PrecisionNum.valueOf(11)))
+                .or(new StopLossRule(close, PrecisionNum.valueOf(3.5)));
 
         return new BaseStrategy(entryRule, exitRule);
     }

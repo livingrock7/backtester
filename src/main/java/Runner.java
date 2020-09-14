@@ -4,9 +4,7 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.ta4j.core.*;
 import org.ta4j.core.analysis.criteria.TotalProfitCriterion;
 import org.ta4j.core.num.PrecisionNum;
-import strategy.BollingerBandStrategy;
-import strategy.IchimokuStrategy;
-import strategy.StrategyRule;
+import strategy.*;
 
 import java.io.*;
 import java.util.Objects;
@@ -17,7 +15,7 @@ import java.util.stream.Stream;
 public class Runner {
 
     Properties properties;
-    static PrecisionNum size = PrecisionNum.valueOf(1);
+    static PrecisionNum size = PrecisionNum.valueOf(2.5);
     // This is our starting balance
 
     public static void main(String[] args) {
@@ -26,7 +24,7 @@ public class Runner {
         String filePath = Objects.requireNonNull(runner.getClass().getClassLoader().getResource("config.properties")).getPath();
         runner.loadProps(filePath);
 
-        Stream.of(BollingerBandStrategy.class)
+        Stream.of(IchimokuStrategy.class)
                 .forEach(c -> {
                     try {
                         StrategyRule rule = c.newInstance();
@@ -43,9 +41,7 @@ public class Runner {
                         e.printStackTrace();
                     }
                 });
-
-
-    }
+    }`
 
     private static void loadAndTest(StrategyRule rule, File file) {
         BarDataLoader loader = new BarDataLoader();
@@ -98,7 +94,7 @@ public class Runner {
             }
         } else {
             for (Trade trade : tradingRecord.getTrades()) {
-                profit = PrecisionNum.valueOf((PrecisionNum) profit.plus(trade.getEntry().getNetPrice().minus(trade.getExit().getNetPrice())));
+                profit = PrecisionNum.valueOf((PrecisionNum) profit.plus(trade.getEntry().getNetPrice().minus(trade.getExit().getNetPrice()).multipliedBy(size)));
             }
         }
         System.out.println("Profit :: " + profit);
